@@ -79,6 +79,20 @@ model RWAAsset {
   @@map("rwa_assets")
 }
 
+model IdempotencyRecord {
+  id         String   @id @default(cuid())
+  key        String
+  userId     String   @map("user_id")
+  statusCode Int      @map("status_code")
+  response   Json
+  createdAt  DateTime @default(now()) @map("created_at")
+  expiresAt  DateTime @map("expires_at")
+
+  @@unique([key, userId])
+  @@index([expiresAt])
+  @@map("idempotency_records")
+}
+
 model Transaction {
   id          String            @id @default(cuid())
   accountId   String            @map("account_id")

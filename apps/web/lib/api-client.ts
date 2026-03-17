@@ -27,7 +27,9 @@ apiClient.interceptors.request.use((config) => {
   return config
 })
 
-// Response interceptor — handle 401 and refresh
+// Response interceptor — só tenta refresh quando havia token em memória
+// (token expirou mid-session). Se accessToken é null, o 401 é esperado
+// (usuário não autenticado) e propagamos o erro normalmente.
 let isRefreshing = false
 let refreshQueue: Array<(token: string) => void> = []
 
@@ -36,13 +38,11 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const original = error.config as typeof error.config & { _retry?: boolean }
 
-    if (error.response?.status === 401 && !original?._retry) {
+    if (error.response?.status === 401 && !original?._retry && accessToken !== null) {
       if (isRefreshing) {
         return new Promise((resolve) => {
           refreshQueue.push((token) => {
-            if (original) {
-              original.headers!.Authorization = `Bearer ${token}`
-            }
+            original!.headers!.Authorization = `Bearer ${token}`
             resolve(apiClient(original!))
           })
         })
@@ -52,9 +52,7 @@ apiClient.interceptors.response.use(
       isRefreshing = true
 
       try {
-        const { data } = await apiClient.post<{ accessToken: string }>('/auth/refresh', {
-          refreshToken: null, // refresh token comes via cookie
-        })
+        const { data } = await apiClient.post<{ accessToken: string }>('/auth/refresh', {})
         setAccessToken(data.accessToken)
         refreshQueue.forEach((cb) => cb(data.accessToken))
         refreshQueue = []
@@ -63,9 +61,7 @@ apiClient.interceptors.response.use(
       } catch {
         setAccessToken(null)
         refreshQueue = []
-        if (typeof window !== 'undefined') {
-          window.location.href = '/login'
-        }
+        window.location.href = '/login'
         return Promise.reject(error)
       } finally {
         isRefreshing = false

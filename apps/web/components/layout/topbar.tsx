@@ -1,14 +1,16 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
-import { Bell, ChevronDown } from 'lucide-react'
+import { Bell } from 'lucide-react'
 import { useAuth } from '@/hooks/use-auth'
 import { Badge } from '@/components/ui/badge'
+import { UserMenu } from './user-menu'
 
 const pageTitles: Record<string, string> = {
   '/dashboard': 'Dashboard',
   '/transactions': 'Transações',
   '/operations/new': 'Nova Operação',
+  '/deposit': 'Depositar Saldo',
 }
 
 export function Topbar() {
@@ -16,13 +18,6 @@ export function Topbar() {
   const { user } = useAuth()
 
   const title = Object.entries(pageTitles).find(([key]) => pathname.startsWith(key))?.[1] ?? 'FeeAgro'
-
-  const initials = user?.name
-    .split(' ')
-    .slice(0, 2)
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
 
   return (
     <header className="h-14 flex items-center justify-between px-5 bg-brand-900/60 backdrop-blur border-b border-brand-700/50">
@@ -48,13 +43,7 @@ export function Topbar() {
           <Bell className="size-4" />
         </button>
 
-        <div className="flex items-center gap-2 px-2 py-1.5 rounded-xl hover:bg-brand-800 cursor-pointer transition-colors">
-          <div className="size-7 rounded-full bg-brand-400/20 border border-brand-400/40 flex items-center justify-center">
-            <span className="text-xs font-bold text-brand-300">{initials}</span>
-          </div>
-          <span className="hidden sm:block text-sm text-cream-200">{user?.name?.split(' ')[0]}</span>
-          <ChevronDown className="size-3 text-muted" />
-        </div>
+        <UserMenu />
       </div>
     </header>
   )

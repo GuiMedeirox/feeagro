@@ -5,15 +5,32 @@ import { apiClient, setAccessToken } from '@/lib/api-client'
 import { AuthContext } from '@/hooks/use-auth'
 import type { User } from '@feeagro/shared'
 
+async function restoreSession(): Promise<User | null> {
+  // Tenta carregar o usuário com o token atual (se houver)
+  try {
+    const { data } = await apiClient.get<{ user: User }>('/auth/me')
+    return data.user
+  } catch {
+    // /auth/me falhou — tenta renovar via refresh token (cookie httpOnly)
+  }
+
+  try {
+    const { data } = await apiClient.post<{ user: User; accessToken: string }>('/auth/refresh', {})
+    setAccessToken(data.accessToken)
+    return data.user
+  } catch {
+    // Refresh também falhou — não há sessão ativa
+    return null
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    apiClient
-      .get<{ user: User }>('/auth/me')
-      .then(({ data }) => setUser(data.user))
-      .catch(() => setUser(null))
+    restoreSession()
+      .then(setUser)
       .finally(() => setIsLoading(false))
   }, [])
 

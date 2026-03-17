@@ -1,6 +1,6 @@
 import { prisma } from '../../config/database.js'
 import { BadRequestError, NotFoundError } from '../../utils/api-error.js'
-import type { InvestmentInput, TransferInput } from '@feeagro/shared'
+import type { DepositInput, InvestmentInput, TransferInput } from '@feeagro/shared'
 
 export class OperationsService {
   async transfer(userId: string, input: TransferInput) {
@@ -106,6 +106,47 @@ export class OperationsService {
         totalValue: Number(result.updatedAsset.quantity) * Number(result.updatedAsset.pricePerUnit),
       },
     }
+  }
+
+  async deposit(userId: string, input: DepositInput) {
+    const account = await prisma.account.findUnique({ where: { userId } })
+    if (!account) throw new NotFoundError('Conta')
+
+    const description = input.description ?? (
+      input.method === 'pix_cpf'
+        ? `Depósito via PIX — CPF ${input.cpf}`
+        : `Depósito via Cartão — ${(input as { cardHolder: string }).cardHolder}`
+    )
+
+    const metadata: Record<string, string> =
+      input.method === 'pix_cpf'
+        ? { method: 'pix_cpf', cpf: input.cpf }
+        : {
+            method: 'credit_card',
+            cardHolder: (input as { cardHolder: string }).cardHolder,
+            // Armazena apenas os últimos 4 dígitos — nunca o número completo
+            cardLast4: (input as { cardNumber: string }).cardNumber.replace(/\D/g, '').slice(-4),
+          }
+
+    const transaction = await prisma.$transaction(async (tx) => {
+      await tx.account.update({
+        where: { id: account.id },
+        data: { availableBalance: { increment: input.amount } },
+      })
+
+      return tx.transaction.create({
+        data: {
+          accountId: account.id,
+          type: 'DEPOSIT',
+          status: 'COMPLETED',
+          amount: input.amount,
+          description,
+          metadata,
+        },
+      })
+    })
+
+    return { transaction: this.serialize(transaction) }
   }
 
   private getAssetInfo(symbol: string): { name: string; pricePerUnit: number } {

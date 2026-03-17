@@ -214,6 +214,7 @@ export function OperationForm() {
   const [type, setType] = useState<OperationType>('transfer')
   const [step, setStep] = useState<Step>('form')
   const [formData, setFormData] = useState<TransferInput | InvestmentInput | null>(null)
+  const [idempotencyKey, setIdempotencyKey] = useState('')
 
   const transferMutation = useCreateTransfer()
   const investmentMutation = useCreateInvestment()
@@ -221,6 +222,7 @@ export function OperationForm() {
 
   const handleFormConfirm = (data: TransferInput | InvestmentInput) => {
     setFormData(data)
+    setIdempotencyKey(crypto.randomUUID())
     setStep('confirm')
   }
 
@@ -228,9 +230,9 @@ export function OperationForm() {
     if (!formData) return
     try {
       if (type === 'transfer') {
-        await transferMutation.mutateAsync(formData as TransferInput)
+        await transferMutation.mutateAsync({ data: formData as TransferInput, idempotencyKey })
       } else {
-        await investmentMutation.mutateAsync(formData as InvestmentInput)
+        await investmentMutation.mutateAsync({ data: formData as InvestmentInput, idempotencyKey })
       }
       toast.success('Operação realizada com sucesso!')
       setStep('success')
@@ -245,6 +247,7 @@ export function OperationForm() {
   const handleNewOperation = () => {
     setStep('form')
     setFormData(null)
+    setIdempotencyKey('')
   }
 
   return (
