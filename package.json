@@ -1,0 +1,28 @@
+{
+  "name": "feeagro",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "pnpm --parallel -r run dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "pnpm --filter @feeagro/api run db:migrate",
+    "db:seed": "pnpm --filter @feeagro/api run db:seed",
+    "db:reset": "pnpm --filter @feeagro/api run db:reset",
+    "db:studio": "pnpm --filter @feeagro/api run db:studio",
+    "setup": "pnpm install && pnpm db:up && sleep 3 && pnpm db:migrate && pnpm db:seed",
+    "test": "pnpm -r run test",
+    "test:api": "pnpm --filter @feeagro/api run test",
+    "test:web": "pnpm --filter @feeagro/web run test"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3",
+    "typescript": "^5.5.4"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["@prisma/client", "@prisma/engines", "esbuild", "prisma", "sharp", "unrs-resolver"]
+  }
+}

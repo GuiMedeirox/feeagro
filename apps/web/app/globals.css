@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme inline {
+  /* Brand Colors - Terra Dourada */
+  --color-brand-950: #050d07;
+  --color-brand-900: #0c1a10;
+  --color-brand-800: #14261a;
+  --color-brand-700: #1a3020;
+  --color-brand-600: #234028;
+  --color-brand-500: #2d6a4f;
+  --color-brand-400: #40916c;
+  --color-brand-300: #52b788;
+  --color-brand-200: #74c69d;
+  --color-brand-100: #b7e4c7;
+  --color-brand-50: #d8f3dc;
+
+  /* Gold Accents */
+  --color-gold-900: #7a5c00;
+  --color-gold-700: #b38600;
+  --color-gold-500: #e9c46a;
+  --color-gold-400: #f4d58d;
+  --color-gold-300: #f8e4b0;
+
+  /* Neutrals */
+  --color-cream-100: #f5e6c8;
+  --color-cream-200: #e8d5b0;
+  --color-cream-300: #c9b99a;
+  --color-muted: #8fa89a;
+
+  /* Status */
+  --color-success: #52b788;
+  --color-danger: #e76f51;
+  --color-warning: #e9c46a;
+  --color-pending: #90a4ae;
+
+  /* Fonts */
+  --font-display: var(--font-syne);
+  --font-sans: var(--font-dm-sans);
+  --font-mono: var(--font-dm-mono);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #0c1a10;
+  color: #f5e6c8;
+  font-family: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #14261a;
+}
+::-webkit-scrollbar-thumb {
+  background: #2d6a4f;
+  border-radius: 3px;
+}
