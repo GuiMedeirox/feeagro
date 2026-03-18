@@ -23,6 +23,10 @@ NODE_MAJOR=$(node -e "process.stdout.write(process.version.split('.')[0].slice(1
 # ── Env files (antes do install para o Prisma achar DATABASE_URL) ─────────────
 
 step "Configurando arquivos de ambiente..."
+cp -n .env.example .env 2>/dev/null \
+  && echo -e "  ${GRAY}criado .env${NC}" \
+  || echo -e "  ${GRAY}.env já existe, mantendo${NC}"
+
 cp -n .env.example apps/api/.env 2>/dev/null \
   && echo -e "  ${GRAY}criado apps/api/.env${NC}" \
   || echo -e "  ${GRAY}apps/api/.env já existe, mantendo${NC}"
@@ -47,8 +51,12 @@ step "Subindo banco de dados..."
 docker compose up -d || fail "Docker Compose falhou. O Docker está rodando?"
 
 step "Aguardando Postgres ficar pronto..."
+set -a
+source .env
+set +a
+
 RETRIES=30
-until docker exec feeagro-db pg_isready -U feeagro -q 2>/dev/null; do
+until docker exec "${POSTGRES_CONTAINER_NAME:-feeagro-db}" pg_isready -U "${POSTGRES_USER:-feeagro}" -q 2>/dev/null; do
   RETRIES=$((RETRIES - 1))
   [ $RETRIES -eq 0 ] && fail "Postgres não respondeu após 30 segundos. Verifique o Docker."
   printf "."

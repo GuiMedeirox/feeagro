@@ -1,16 +1,14 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: feeagro-db
+    container_name: ${POSTGRES_CONTAINER_NAME:-feeagro-db}
     restart: unless-stopped
     ports:
-      - '5432:5432'
+      - '${POSTGRES_PORT:-5433}:${POSTGRES_CONTAINER_PORT:-5432}'
     environment:
-      POSTGRES_USER: feeagro
-      POSTGRES_PASSWORD: feeagro123
-      POSTGRES_DB: feeagro
+      POSTGRES_USER: ${POSTGRES_USER:-feeagro}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-feeagro123}
+      POSTGRES_DB: ${POSTGRES_DB:-feeagro}
     volumes:
       - pgdata:/var/lib/postgresql/data
 
