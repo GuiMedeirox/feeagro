@@ -14,7 +14,7 @@
     "db:seed": "pnpm --filter @feeagro/api run db:seed",
     "db:reset": "pnpm --filter @feeagro/api run db:reset",
     "db:studio": "pnpm --filter @feeagro/api run db:studio",
-    "setup": "bash scripts/setup.sh",
+    "project:setup": "bash scripts/setup.sh",
     "test": "pnpm -r run test",
     "test:api": "pnpm --filter @feeagro/api run test",
     "test:web": "pnpm --filter @feeagro/web run test"

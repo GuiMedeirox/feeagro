@@ -14,7 +14,7 @@ Mini-dashboard bancário com foco em RWA (Real World Assets) do agronegócio bra
 ### Setup em um comando
 
 ```bash
-pnpm setup
+pnpm project:setup
 ```
 
 Isso vai:
